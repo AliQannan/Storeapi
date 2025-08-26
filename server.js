@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import productRoutes from "./routes/productRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js"
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -13,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 // ✅ Configure CORS
-const allowedOrigins = ["https://store-five-tau.vercel.app"];
+const allowedOrigins = ["https://store-five-tau.vercel.app" , "http://localhost:5000"];
 
 app.use(
   cors({
@@ -28,7 +29,7 @@ app.use(
     credentials: true,
   })
 );
-
+app.use('/api/admin' , adminRoutes)
 app.use("/api/products", productRoutes);
 
 app.get("/", (req, res) => {
