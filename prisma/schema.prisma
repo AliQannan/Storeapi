@@ -23,6 +23,7 @@ model Product {
   images      String[]
   category    String
   stock       Int
+  AffiliateLink String?  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
