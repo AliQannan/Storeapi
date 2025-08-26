@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 // ✅ Configure CORS
-const allowedOrigins = ["https://store-five-tau.vercel.app" , "https://localhost:5000"] 
+const allowedOrigins = ["https://store-five-tau.vercel.app" , "https://localhost:5000" , "https://storeapi-flame.vercel.app"] 
 
 app.use(
   cors({
