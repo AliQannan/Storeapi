@@ -4,7 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -46,43 +101,109 @@
             </tbody>
         </table>
     </div>
+
     <script>
+        const productForm = document.getElementById("productForm");
+        const productTable = document.getElementById("productTable").getElementsByTagName("tbody")[0];
+        const token = localStorage.getItem("atoken"); // Assuming you store the token in localStorage
 
+        // Fetch and display products
+        async function fetchProducts() {
+            const response = await fetch("/api/products");
+            const data = await response.json();
+            if (data.success) {
+                productTable.innerHTML = ""; // Clear existing rows
+                data.products.forEach(product => {
+                    const row = productTable.insertRow();
+                    row.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.description}</td>
+                        <td>${product.price}</td>
+                        <td>
+                            <button onclick="editProduct('${product.id}')">Edit</button>
+                            <button onclick="deleteProduct('${product.id}')">Delete</button>
+                        </td>
+                    `;
+                });
+            } else {
+                alert("Error fetching products");
+            }
+        }
 
-  const backendUrl = "https://storeapi-mu.vercel.app"; // your backend URL
+        // Add or update product
+        productForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("productId").value;
+            const method = id ? "PUT" : "POST";
+            const url = id ? `/api/products/${id}` : `/api/products`;
 
-  window.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('atoken');
+            const productData = {
+                name: document.getElementById("name").value,
+                description: document.getElementById("description").value,
+                price: parseFloat(document.getElementById("price").value),
+                images: document.getElementById("images").value.split(","),
+                category: document.getElementById("category").value,
+                stock: parseInt(document.getElementById("stock").value),
+                AffiliateLink: document.getElementById("affiliateLink").value,
+            };
 
-    // If no token, redirect immediately
-    if (!token) {
-      window.location.href = "/";
-      return;
-    }
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "atoken": token, // Include the token in the headers
+                },
+                body: JSON.stringify(productData),
+            });
 
-    // If token exists, verify it with backend
-    try {
-      const response = await fetch(`${backendUrl}/api/admin/verify`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+            const data = await response.json();
+            if (data.success) {
+                alert("Product saved successfully");
+                fetchProducts(); // Refresh the product list
+                productForm.reset(); // Reset the form
+            } else {
+                alert("Error saving product");
+            }
+        });
 
-      if (!response.ok) {
-        // Token invalid or expired → redirect to login
-        localStorage.removeItem('atoken');
-        window.location.href = "/";
-      } else {
-        console.log("Token valid, stay on dashboard");
-      }
-    } catch (error) {
-      console.error("Verification failed:", error);
-      localStorage.removeItem('atoken');
-      window.location.href = "/";
-    }
-  });
-      
-      
+        // Edit product
+        function editProduct(id) {
+            const row = productTable.querySelector(`tr[data-id='${id}']`);
+            const product = {
+                id: row.cells[0].innerText,
+                name: row.cells[1].innerText,
+                description: row.cells[2].innerText,
+                price: row.cells[3].innerText,
+            };
+
+            document.getElementById("productId").value = product.id;
+            document.getElementById("name").value = product.name;
+            document.getElementById("description").value = product.description;
+            document.getElementById("price").value = product.price;
+            // Populate other fields as necessary
+        }
+
+        // Delete product
+        async function deleteProduct(id) {
+            const response = await fetch(`/api/products/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "atoken": token, // Include the token in the headers
+                },
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("Product deleted successfully");
+                fetchProducts(); // Refresh the product list
+            } else {
+                alert("Error deleting product");
+            }
+        }
+
+        // Initial fetch of products
+        fetchProducts();
     </script>
-    <script src="dashboard.js"></script> <!-- Link to your JavaScript file -->
 </body>
 </html>
