@@ -5,7 +5,7 @@ import productRoutes from "./routes/productRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"
 import path from "path";
 import { fileURLToPath } from "url";
-
+import authAdmin from "./middleware/authAdmin.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 app.get("/admin/signup.html", (req, res) => {
   res.sendFile(path.join(__dirname, "admin", "login", "signup.html"));
 });
-app.get("/admin/dashboard", (req, res) => {
+app.get("/admin/dashboard", authAdmin , (req, res) => {
   res.sendFile(path.join(__dirname, "admin", "login", "dashboard.html"));
 });
 
