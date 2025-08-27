@@ -7,7 +7,7 @@ import {
   deleteProduct,
 } from "../controllers/productController.js";
 
-import { authAdmin } from "../middleware/authAdmin.js";
+import  authAdmin  from "../middleware/authAdmin.js";
 
 const router = express.Router();
 
