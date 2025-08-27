@@ -132,7 +132,6 @@ export const verifyAdmin = async (req, res) => {
 
 
 
-// Email validation regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Password validation (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
@@ -245,8 +244,8 @@ export const signupAdmin = async (req, res) => {
       admin: {
         id: newAdmin.id,
         email: newAdmin.email,
-        role: newAdmin.role,
-        createdAt: newAdmin.createdAt
+        role: newAdmin.role
+        // Removed createdAt temporarily until you update your model
       }
     });
 
