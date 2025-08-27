@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Signup</title>
+</head>
+<body>
+  <h2>Admin Signup</h2>
+  <form id="signupForm">
+    <input type="email" id="email" placeholder="Email" required><br/>
+    <input type="password" id="password" placeholder="Password" required><br/>
+    <input type="text" id="role" placeholder="Role (optional)" /><br/>
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <p>Already have an account? <a href="login.html">Login here</a></p>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+
+      const response = await fetch("/api/admin/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role }),
+      });
+
+      const data = await response.json();
+      alert(data.message);
+      if (data.success) {
+        localStorage.setItem("adminToken", data.token);
+        window.location.href = "dashboard.html";
+      }
+    });
+  </script>
+</body>
+</html>
