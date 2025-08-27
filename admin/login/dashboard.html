@@ -24,7 +24,7 @@
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
-            window.location.href = "/admin/dashboard";
+            window.location.href = "/";
           } else {
             localStorage.removeItem('atoken');
           }
