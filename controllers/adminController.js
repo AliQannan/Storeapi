@@ -132,7 +132,7 @@ export const verifyAdmin = async (req, res) => {
 
 export const signupAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password  , role} = req.body;
 
     // Validate input
     if (!email || !password) {
@@ -161,7 +161,8 @@ export const signupAdmin = async (req, res) => {
     const newAdmin = await prisma.adminUser.create({
       data: {
         email: email.toLowerCase().trim(),
-        password: hashedPassword
+        password: hashedPassword ,
+        role:role
       }
     });
 
