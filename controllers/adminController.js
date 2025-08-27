@@ -1,86 +1,140 @@
-// controllers/adminController.js
-import prisma from "../models/prismaClient.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #f8f9fa;
+      color: #5E5E5E;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-container { width: 100%; max-width: 420px; padding: 20px; }
+    .login-form {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    .form-title { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 25px; color: #4f46e5; }
+    .form-group { margin-bottom: 20px; width: 100%; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+    .form-group input {
+      width: 100%; padding: 12px 15px; border: 1px solid #DADADA; border-radius: 8px; font-size: 16px;
+    }
+    .form-group input:focus {
+      outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+    }
+    .login-btn {
+      background-color: #4f46e5; color: white; width: 100%; padding: 12px;
+      border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;
+    }
+    .login-btn:hover { background-color: #4338ca; }
+    .loader { display: none; text-align: center; margin: 15px 0; }
+    .loader i { color: #4f46e5; font-size: 20px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <form class="login-form" id="loginForm">
+      <h2 class="form-title">Admin Login</h2>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="login-btn">Login</button>
+      <div class="loader" id="loader"><i class="fas fa-spinner"></i></div>
+    </form>
+  </div>
 
-// ✅ Admin Login
-export  const loginAdmin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Email and password are required" 
-      });
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const backendUrl = "https://storeapi-flame.vercel.app";
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loaderElement = document.getElementById('loader');
+
+    // Show toast
+    function showToast(message, type = 'default') {
+      const toast = document.createElement('div');
+      toast.style.backgroundColor = type === 'success' ? '#38a169' : '#e53e3e';
+      toast.style.color = 'white';
+      toast.style.padding = '12px 20px';
+      toast.style.borderRadius = '8px';
+      toast.style.marginBottom = '10px';
+      toast.innerHTML = message;
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     }
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { email: email.toLowerCase().trim() }
-    });
+    // Handle login
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      loaderElement.style.display = 'block';
+      try {
+        const response = await fetch(`${backendUrl}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: emailInput.value,
+            password: passwordInput.value
+          })
+        });
 
-    if (!admin) {  // Fixed: Added 'admin' after the !
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid credentials" 
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, admin.password);
-    
-    if (!isMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Invalid credentials" 
-      });
-    }
-
-    const token = jwt.sign(
-      { 
-        id: admin.id,
-        email: admin.email 
-      }, 
-      process.env.JWT_SECRET || "aliqannan", // Added fallback for JWT secret
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      token,
-      admin: {
-        id: admin.id,
-        email: admin.email,
-        createdAt: admin.createdAt
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem("atoken", data.token);
+          showToast(data.message, 'success');
+          setTimeout(() => window.location.href = "/admin/login/dashboard.html", 1500);
+        } else {
+          showToast(data.message, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Login failed. Try again.", 'error');
+      } finally {
+        loaderElement.style.display = 'none';
       }
     });
 
-  } catch (err) {
-    console.error('Login error:', err);
-    
-    // Handle specific Prisma errors
-    if (err.code === 'P1013' || err.code === 'P1001') {
-      return res.status(500).json({
-        success: false,
-        message: "Database connection error"
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
+    // Auto-redirect if already logged in
+    window.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('atoken');
+      if (token) {
+        try {
+          const response = await fetch(`${backendUrl}/api/admin/verify`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            window.location.href = "/admin/login/dashboard.html";
+          } else {
+            localStorage.removeItem('atoken');
+          }
+        } catch {
+          localStorage.removeItem('atoken');
+        }
+      }
     });
-  }
-};
-// ✅ Get all admins
-export const getAdmins = async (req, res) => {
-  try {
-    const admins = await prisma.adminUser.findMany({
-      select: { id: true, email: true, createdAt: true },
-    });
-    res.status(200).json(admins);
-  } catch (error) {
-    console.error("Get admins error:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// ✅ Create new admin
+  </script>
+</body>
+</html>
