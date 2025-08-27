@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "admin")));
 
 // ✅ Configure CORS
-const allowedOrigins = ["https://store-five-tau.vercel.app" , "https://localhost:5000" , "https://storeapi-flame.vercel.app"] 
+const allowedOrigins = ["https://store-five-tau.vercel.app" , "https://localhost:5000" , "https://storeapi-mu.vercel.app"] 
 
 app.use(
   cors({
