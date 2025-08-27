@@ -12,26 +12,7 @@
 
 
 <script>
-  window.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem('atoken');
-      if (token) {
-        try {
-          const response = await fetch(`${backendUrl}/api/admin/verify`, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (response.ok) {
-            console.log("login successfuly")
-          } else {
-            localStorage.removeItem('atoken');
-            window.location.href = "/";
-          }
-        } catch {
-          localStorage.removeItem('atoken');
-          window.location.href = "/";
-        }
-      }
-    });
+ 
 </script>
 </body>
 
