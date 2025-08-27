@@ -104,8 +104,7 @@
         if (data.success) {
           localStorage.setItem("atoken", data.token);
           showToast(data.message, 'success');
-          setTimeout(() => // Call the function
- window.location.href='/admin/dashboard', 1500);
+          setTimeout(() =>    window.location.href = "/admin/dashboard", 1500);
         } else {
           showToast(data.message, 'error');
         }
