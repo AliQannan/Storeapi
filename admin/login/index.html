@@ -6,12 +6,7 @@
   <title>Admin Login</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
       background-color: #f8f9fa;
       color: #5E5E5E;
@@ -36,11 +31,14 @@
     .form-group input:focus {
       outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
     }
-    .login-btn {
-      background-color: #4f46e5; color: white; width: 100%; padding: 12px;
-      border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer;
+    .login-btn, .signup-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 8px;
+      font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 10px;
     }
+    .login-btn { background-color: #4f46e5; color: white; }
     .login-btn:hover { background-color: #4338ca; }
+    .signup-btn { background-color: #38a169; color: white; }
+    .signup-btn:hover { background-color: #2f855a; }
     .loader { display: none; text-align: center; margin: 15px 0; }
     .loader i { color: #4f46e5; font-size: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -60,6 +58,8 @@
         <input type="password" id="password" placeholder="Enter your password" required>
       </div>
       <button type="submit" class="login-btn">Login</button>
+      <!-- ✅ Signup Button -->
+      <button type="button" class="signup-btn" onclick="window.location.href='/admin/signup.html'">Signup</button>
       <div class="loader" id="loader"><i class="fas fa-spinner"></i></div>
     </form>
   </div>
@@ -67,7 +67,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    const backendUrl = "https://doctora-appointments-api.vercel.app";
+    const backendUrl = "https://storeapi-flame.vercel.app";
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -126,7 +126,7 @@
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
-            window.location.href = "/admin/dashboard.html";
+            window.location.href = "/admin/login/dashboard.html";
           } else {
             localStorage.removeItem('atoken');
           }
