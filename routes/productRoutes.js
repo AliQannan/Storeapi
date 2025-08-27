@@ -7,7 +7,7 @@ import {
   deleteProduct,
 } from "../controllers/productController.js";
 
-import { adminAuth } from "../middleware/authMiddleware.js";
+import { authAdmin } from "../middleware/authAdmin.js";
 
 const router = express.Router();
 
@@ -16,9 +16,9 @@ router.get("/", getProducts);
 router.get("/:id", getProductById);
 
 // Admin routes
-router.post("/", adminAuth, createProduct);
-router.put("/:id", adminAuth, updateProduct);
-router.delete("/:id", adminAuth, deleteProduct);
+router.post("/", authAdmin, createProduct);
+router.put("/:id", authAdmin, updateProduct);
+router.delete("/:id", authAdmin, deleteProduct);
 
 export default router;
 
