@@ -115,6 +115,32 @@
         loaderElement.style.display = 'none';
       }
     });
+    //// Function to get dashboard data
+async function getDashboardData() {
+  try {
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
+    
+    // Make GET request with token in headers
+    const response = await fetch("https://storeapi-mu.vercel.app/admin/dashboard", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    // Parse JSON response
+    const data = await response.json();
+    console.log("Dashboard data:", data);
+
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+  }
+}
+
+// Call the function
+getDashboardData();
+
 
     // Auto-redirect if already logged in
     window.addEventListener('DOMContentLoaded', async () => {
