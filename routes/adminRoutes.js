@@ -1,12 +1,15 @@
-
-
 import express from "express";
-import { loginAdmin, getAdmins } from "../controllers/adminController.js";
+import { loginAdmin, getAdmins, verifyAdmin } from "../controllers/adminController.js";
 
 const router = express.Router();
 
-router.post("/login", loginAdmin);        // Login
-router.get("/all", getAdmins);       // Get all admins
+// Login route
+router.post("/login", loginAdmin);
 
+// Get all admins
+router.get("/all", getAdmins);
 
-export default router ;
+// Verify token
+router.get("/verify", verifyAdmin);
+
+export default router;
