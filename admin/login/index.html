@@ -58,7 +58,6 @@
         <input type="password" id="password" placeholder="Enter your password" required>
       </div>
       <button type="submit" class="login-btn">Login</button>
-      <!-- ✅ Signup Button -->
       <button type="button" class="signup-btn" onclick="window.location.href='/admin/signup.html'">Signup</button>
       <div class="loader" id="loader"><i class="fas fa-spinner"></i></div>
     </form>
@@ -73,7 +72,6 @@
     const passwordInput = document.getElementById('password');
     const loaderElement = document.getElementById('loader');
 
-    // Show toast
     function showToast(message, type = 'default') {
       const toast = document.createElement('div');
       toast.style.backgroundColor = type === 'success' ? '#38a169' : '#e53e3e';
@@ -86,7 +84,6 @@
       setTimeout(() => toast.remove(), 3000);
     }
 
-    // Handle login
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       loaderElement.style.display = 'block';
@@ -99,12 +96,11 @@
             password: passwordInput.value
           })
         });
-
         const data = await response.json();
         if (data.success) {
           localStorage.setItem("atoken", data.token);
           showToast(data.message, 'success');
-          setTimeout(() =>    window.location.href = "/admin/dashboard", 1500);
+          setTimeout(() =>  window.location.href = "/admin/dashboard", 1500);
         } else {
           showToast(data.message, 'error');
         }
@@ -115,18 +111,6 @@
         loaderElement.style.display = 'none';
       }
     });
-    //// Function to get dashboard data
-
-    // Parse JSON response
-    const data = await response.json();
-    console.log("Dashboard data:", data);
-
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-  }
-}
-
-
 
     // Auto-redirect if already logged in
     window.addEventListener('DOMContentLoaded', async () => {
