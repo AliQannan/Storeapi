@@ -1,11 +1,15 @@
 import jwt from "jsonwebtoken";
-import bcrypt 
-// ✅ Verify Admin Token
-// controllers/adminController.js
+import bcrypt from "bcrypt"; // ✅ Fixed: Added missing 'from "bcrypt"'
 import prisma from "../models/prismaClient.js";
 
+// Email validation regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Password validation (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+
 // ✅ Admin Login
-export  const loginAdmin = async (req, res) => {
+export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     
@@ -20,7 +24,7 @@ export  const loginAdmin = async (req, res) => {
       where: { email: email.toLowerCase().trim() }
     });
 
-    if (!admin) {  // Fixed: Added 'admin' after the !
+    if (!admin) {
       return res.status(401).json({ 
         success: false, 
         message: "Invalid credentials" 
@@ -39,9 +43,10 @@ export  const loginAdmin = async (req, res) => {
     const token = jwt.sign(
       { 
         id: admin.id,
-        email: admin.email 
+        email: admin.email,
+        role: admin.role // ✅ Added role to token
       }, 
-      process.env.JWT_SECRET || "aliqannan", // Added fallback for JWT secret
+      process.env.JWT_SECRET || "aliqannan",
       { expiresIn: '24h' }
     );
 
@@ -51,7 +56,8 @@ export  const loginAdmin = async (req, res) => {
       token,
       admin: {
         id: admin.id,
-        email: admin.email
+        email: admin.email,
+        role: admin.role // ✅ Added role to response
       }
     });
 
@@ -72,22 +78,32 @@ export  const loginAdmin = async (req, res) => {
     });
   }
 };
+
 // ✅ Get all admins
 export const getAdmins = async (req, res) => {
   try {
     const admins = await prisma.adminUser.findMany({
-      select: { id: true, email: true, createdAt: true },
+      select: { 
+        id: true, 
+        email: true, 
+        role: true, // ✅ Added role selection
+        createdAt: true 
+      },
     });
-    res.status(200).json(admins);
+    res.status(200).json({
+      success: true,
+      admins: admins
+    });
   } catch (error) {
     console.error("Get admins error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ 
+      success: false,
+      message: "Internal server error" 
+    });
   }
 };
 
-// ✅ Create new admin
-
-
+// ✅ Verify Admin Token
 export const verifyAdmin = async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -104,7 +120,7 @@ export const verifyAdmin = async (req, res) => {
     jwt.verify(
       token,
       process.env.JWT_SECRET || "aliqannan",
-      (err, decoded) => {
+      async (err, decoded) => { // ✅ Made callback async
         if (err) {
           return res.status(401).json({
             success: false,
@@ -112,12 +128,32 @@ export const verifyAdmin = async (req, res) => {
           });
         }
 
-        // ✅ If token is valid
-        return res.json({
-          success: true,
-          message: "Token is valid",
-          admin: decoded,
-        });
+        try {
+          // ✅ Optional: Verify admin still exists in database
+          const admin = await prisma.adminUser.findUnique({
+            where: { id: decoded.id },
+            select: { id: true, email: true, role: true }
+          });
+
+          if (!admin) {
+            return res.status(401).json({
+              success: false,
+              message: "Admin not found",
+            });
+          }
+
+          return res.json({
+            success: true,
+            message: "Token is valid",
+            admin: admin,
+          });
+        } catch (dbError) {
+          console.error("Database error during verification:", dbError);
+          return res.status(500).json({
+            success: false,
+            message: "Database error",
+          });
+        }
       }
     );
   } catch (error) {
@@ -129,16 +165,10 @@ export const verifyAdmin = async (req, res) => {
   }
 };
 
-
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Password validation (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-
+// ✅ Admin Signup
 export const signupAdmin = async (req, res) => {
   try {
-    console.log('Signup request body:', req.body); // Debug log
+    console.log('Signup request body:', req.body);
     
     const { email, password, role } = req.body;
 
@@ -178,7 +208,7 @@ export const signupAdmin = async (req, res) => {
     // Normalize email
     const normalizedEmail = email.toLowerCase().trim();
 
-    console.log('Checking for existing admin with email:', normalizedEmail); // Debug log
+    console.log('Checking for existing admin with email:', normalizedEmail);
 
     // Check if email already exists
     const existingAdmin = await prisma.adminUser.findUnique({
@@ -192,13 +222,13 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
-    console.log('Hashing password...'); // Debug log
+    console.log('Hashing password...');
 
-    // Hash password with higher salt rounds for admin accounts
+    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    console.log('Creating new admin...'); // Debug log
+    console.log('Creating new admin...');
 
     // Create new admin
     const newAdmin = await prisma.adminUser.create({
@@ -209,7 +239,7 @@ export const signupAdmin = async (req, res) => {
       }
     });
 
-    console.log('Admin created successfully:', newAdmin.id); // Debug log
+    console.log('Admin created successfully:', newAdmin.id);
 
     // Ensure JWT_SECRET exists
     if (!process.env.JWT_SECRET) {
@@ -233,7 +263,6 @@ export const signupAdmin = async (req, res) => {
       }
     );
 
-    // Log successful admin creation (without sensitive data)
     console.log(`New admin created: ${newAdmin.email} with role: ${newAdmin.role} at ${new Date().toISOString()}`);
 
     res.status(201).json({
@@ -244,7 +273,6 @@ export const signupAdmin = async (req, res) => {
         id: newAdmin.id,
         email: newAdmin.email,
         role: newAdmin.role
-        // Removed createdAt temporarily until you update your model
       }
     });
 
