@@ -11,7 +11,26 @@
 </div>
 
 
-
+<script>
+   window.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('atoken');
+      if (token) {
+        try {
+          const response = await fetch(`${backendUrl}/api/admin/verify`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            window.location.href = "/admin/dashboard";
+          } else {
+            localStorage.removeItem('atoken');
+          }
+        } catch {
+          localStorage.removeItem('atoken');
+        }
+      }
+    });
+</script>
 
 </body>
 
