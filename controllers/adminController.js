@@ -130,51 +130,105 @@ export const verifyAdmin = async (req, res) => {
   }
 };
 
+
+
+// Email validation regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Password validation (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+
 export const signupAdmin = async (req, res) => {
   try {
-    const { email, password  , role} = req.body;
+    const { email, password, role } = req.body;
 
-    // Validate input
-    if (!email || !password) {
+    // Validate input presence
+    if (!email || !password || !role) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required"
+        message: "Email, password, and role are required"
       });
     }
 
+    // Validate role
+    const validRoles = ['super_admin', 'admin', 'moderator', 'editor'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role selected. Must be one of: super_admin, admin, moderator, editor"
+      });
+    }
+
+    // Validate email format
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid email address"
+      });
+    }
+
+    // Validate password strength
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+      });
+    }
+
+    // Normalize email
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if email already exists
     const existingAdmin = await prisma.adminUser.findUnique({
-      where: { email: email.toLowerCase().trim() }
+      where: { email: normalizedEmail }
     });
 
     if (existingAdmin) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         message: "Admin already exists with this email"
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password with higher salt rounds for admin accounts
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create new admin
     const newAdmin = await prisma.adminUser.create({
       data: {
-        email: email.toLowerCase().trim(),
-        password: hashedPassword ,
-        role:role
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: role
       }
     });
+
+    // Ensure JWT_SECRET exists
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET environment variable is not set');
+      return res.status(500).json({
+        success: false,
+        message: "Server configuration error"
+      });
+    }
 
     // Create JWT token
     const token = jwt.sign(
       {
         id: newAdmin.id,
-        email: newAdmin.email
+        email: newAdmin.email,
+        role: 'admin' // Add role for better token validation
       },
-      process.env.JWT_SECRET || "aliqannan",
-      { expiresIn: "24h" }
+      process.env.JWT_SECRET,
+      { 
+        expiresIn: "24h",
+        issuer: "your-app-name", // Add issuer for better security
+        audience: "admin-panel" // Add audience for token scope
+      }
     );
+
+    // Log successful admin creation (without sensitive data)
+    console.log(`New admin created: ${newAdmin.email} at ${new Date().toISOString()}`);
 
     res.status(201).json({
       success: true,
@@ -183,11 +237,22 @@ export const signupAdmin = async (req, res) => {
       admin: {
         id: newAdmin.id,
         email: newAdmin.email,
+        role: newAdmin.role,
         createdAt: newAdmin.createdAt
       }
     });
+
   } catch (err) {
-    console.error("Signup error:", err);
+    console.error("Admin signup error:", err);
+    
+    // Handle specific Prisma errors
+    if (err.code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        message: "Admin already exists with this email"
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Internal server error"
