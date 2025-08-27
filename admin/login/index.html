@@ -1,91 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .login-container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    button {
-      width: 100%;
-      padding: 0.6rem;
-      background: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/react-toastify/8.0.3/react-toastify.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #5E5E5E;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        
+        .login-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .form-title span {
+            color: #4f46e5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #DADADA;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        
+        .login-btn {
+            background-color: #4f46e5;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            background-color: #4338ca;
+        }
+        
+        .toggle-login {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .toggle-login span {
+            color: #4f46e5;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .loader i {
+            color: #4f46e5;
+            font-size: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 15px;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button id="loginBtn">Login</button>
-    <div class="error" id="errorMsg"></div>
-  </div>
+    <div class="login-container">
+        <form class="login-form" id="loginForm">
+            <h2 class="form-title">
+                <span id="loginType">Admin</span> Login
+            </h2>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Login</button>
+            
+            <div class="loader" id="loader">
+                <i class="fas fa-spinner"></i>
+            </div>
+            
+            <div class="toggle-login">
+                <p id="toggleText">
+                    Doctor Login? <span onclick="toggleLoginType()">Click here</span>
+                </p>
+            </div>
+        </form>
+    </div>
 
-  <script>
-    const loginBtn = document.getElementById('loginBtn');
-    const errorMsg = document.getElementById('errorMsg');
+    <div class="toast-container" id="toastContainer"></div>
 
-    loginBtn.addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      try {
-        const res = await fetch('/api/admin/login', {
-          method: 'POST', // we should use POST for login
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          // Redirect to dashboard on successful login
-          window.location.href = '/admin/login/dashboard.html';
-        } else {
-          errorMsg.textContent = data.error;
+    <script>
+        // State management
+        let state = "Admin";
+        const backendUrl = "https://doctora-appointments-api.vercel.app";
+        
+        // DOM elements
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginTypeElement = document.getElementById('loginType');
+        const toggleTextElement = document.getElementById('toggleText');
+        const loaderElement = document.getElementById('loader');
+        
+        // Toggle between Admin and Doctor login
+        function toggleLoginType() {
+            if (state === "Admin") {
+                state = "Doctor";
+                loginTypeElement.textContent = "Doctor";
+                toggleTextElement.innerHTML = 'Admin Login? <span onclick="toggleLoginType()">Click here</span>';
+            } else {
+                state = "Admin";
+                loginTypeElement.textContent = "Admin";
+                toggleTextElement.innerHTML = 'Doctor Login? <span onclick="toggleLoginType()">Click here</span>';
+            }
         }
-      } catch (err) {
-        console.error(err);
-        errorMsg.textContent = 'Server error. Try again later.';
-      }
-    });
-  </script>
+        
+        // Show toast notification
+        function showToast(message, type = 'default') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Add styles based on type
+            if (type === 'success') {
+                toast.style.backgroundColor = '#38a169';
+                toast.style.color = 'white';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = '#e53e3e';
+                toast.style.color = 'white';
+            } else {
+                toast.style.backgroundColor = '#3182ce';
+                toast.style.color = 'white';
+            }
+            
+            // Basic toast styling
+            toast.style.padding = '12px 20px';
+            toast.style.borderRadius = '8px';
+            toast.style.marginBottom = '10px';
+            toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.animation = 'slideIn 0.3s ease';
+            
+            const toastContainer = document.getElementById('toastContainer');
+            toastContainer.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+            
+            // Add keyframes for animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Handle form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            // Show loader
+            loaderElement.style.display = 'block';
+            
+            try {
+                let endpoint, tokenKey;
+                
+                if (state === "Admin") {
+                    endpoint = "/api/admin/login";
+                    tokenKey = "atoken";
+                } else {
+                    endpoint = "/api/doctor/login";
+                    tokenKey = "dToken";
+                }
+                
+                const response = await fetch(`${backendUrl}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    
+                    // Store token in localStorage
+                    localStorage.setItem(tokenKey, data.token);
+                    
+                    // Redirect based on login type
+                    setTimeout(() => {
+                        if (state === "Admin") {
+                            window.location.href = "/admin/dashboard.html";
+                        } else {
+                            window.location.href = "/doctor/dashboard.html";
+                        }
+                    }, 1500);
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Login failed. Please try again.', 'error');
+            } finally {
+                // Hide loader
+                loaderElement.style.display = 'none';
+            }
+        });
+        
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const adminToken = localStorage.getItem('atoken');
+            const doctorToken = localStorage.getItem('dToken');
+            
+            if (adminToken) {
+                // Verify token and redirect to admin dashboard
+                verifyTokenAndRedirect(adminToken, 'admin');
+            } else if (doctorToken) {
+                // Verify token and redirect to doctor dashboard
+                verifyTokenAndRedirect(doctorToken, 'doctor');
+            }
+        });
+        
+        // Verify token and redirect if valid
+        async function verifyTokenAndRedirect(token, userType) {
+            try {
+                const endpoint = userType === 'admin' ? '/api/admin/verify' : '/api/doctor/verify';
+                
+                const response = await fetch(`${backendUrl}${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    // Token is valid, redirect to dashboard
+                    window.location.href = `/${userType}/dashboard.html`;
+                } else {
+                    // Token is invalid, remove from storage
+                    localStorage.removeItem(userType === 'admin' ? 'atoken' : 'dToken');
+                }
+            } catch (error) {
+                console.error('Token verification error:', error);
+                localStorage.removeItem(userType === 'admin' ? 'atoken' : 'dToken');
+            }
+        }
+    </script>
 </body>
 </html>
-
