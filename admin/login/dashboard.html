@@ -22,11 +22,13 @@
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
-            window.location.href = "/admin/dashboard";
+             console.log("hello")
           } else {
+              window.location.href = "/";
             localStorage.removeItem('atoken');
           }
         } catch (error) {
+          window.location.href = "/";
           console.error("Verification failed:", error);
           localStorage.removeItem('atoken');
         }
