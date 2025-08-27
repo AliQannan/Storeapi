@@ -17,8 +17,7 @@ const loginAdmin = async (req, res) => {
       where: { email: email.toLowerCase().trim() }
     });
 
-    if (!) {
-      // Use consistent error messages to avoid revealing if email exists
+    if (!admin) {  // Fixed: Added 'admin' after the !
       return res.status(401).json({ 
         success: false, 
         message: "Invalid credentials" 
@@ -39,7 +38,7 @@ const loginAdmin = async (req, res) => {
         id: admin.id,
         email: admin.email 
       }, 
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "aliqannan", // Added fallback for JWT secret
       { expiresIn: '24h' }
     );
 
