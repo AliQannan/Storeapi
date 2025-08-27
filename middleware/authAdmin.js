@@ -8,7 +8,7 @@ dotenv.config();
 // User authentication middleware for admin
 const authAdmin = async (req, res, next) => {
   try {
-    const { atoken } = req.headers || localStorage.getItem('atoken');
+    const { atoken } = req.headers;
 
     if (!atoken) {
       return res.status(401).json({
