@@ -411,9 +411,42 @@
             localStorage.removeItem("atoken");
             window.location.reload();
         });
+        
 
         // Load the product list by default
         renderProducts();
+        
+  const backendUrl = "https://storeapi-mu.vercel.app"; // your backend URL
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('atoken');
+
+    // If no token, redirect immediately
+    if (!token) {
+      window.location.href = "/";
+      return;
+    }
+
+    // If token exists, verify it with backend
+    try {
+      const response = await fetch(`${backendUrl}/api/admin/verify`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        // Token invalid or expired → redirect to login
+        localStorage.removeItem('atoken');
+        window.location.href = "/";
+      } else {
+        console.log("Token valid, stay on dashboard");
+      }
+    } catch (error) {
+      console.error("Verification failed:", error);
+      localStorage.removeItem('atoken');
+      window.location.href = "/";
+    }
+  });
     </script>
 </body>
 </html>
