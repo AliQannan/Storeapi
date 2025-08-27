@@ -15,6 +15,18 @@
 </body>
 </html>
 <script>
+<script>
+const token = localStorage.getItem("atoken");
+if (!token) {
+  window.location.href = "/"; // redirect to login
+} else {
+  fetch("https://storeapi-mu.vercel.app/api/admin/verify", {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(res => {
+    if (!res.ok) window.location.href = "/";
+  });
+}
+</script>
 
   
 </script>
