@@ -238,7 +238,6 @@ export const signupAdmin = async (req, res) => {
         id: newAdmin.id,
         email: newAdmin.email,
         role: newAdmin.role,
-        createdAt: newAdmin.createdAt
       }
     });
 
