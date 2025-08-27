@@ -120,7 +120,7 @@ getDashboardData();, 1500);
 async function getDashboardData() {
   try {
     // Get token from localStorage
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("atoken");
     
     // Make GET request with token in headers
     const response = await fetch("https://storeapi-mu.vercel.app/admin/dashboard", {
