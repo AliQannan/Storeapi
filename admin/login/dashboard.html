@@ -232,13 +232,13 @@
                                 <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-md">${product.category || 'N/A'}</span>
                             </td>
                             <td class="px-6 py-4">
-                                ${product.affiliateLink ? 
+                                ${product.AffiliateLink ? 
                                     `<div class="affiliate-link">
-                                        <a href="${product.affiliateLink}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs underline">
+                                        <a href="${product.AffiliateLink}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs underline">
                                             <i class="fas fa-external-link-alt mr-1"></i>
-                                            ${product.affiliateLink.length > 30 ? product.affiliateLink.substring(0, 30) + '...' : product.affiliateLink}
+                                            ${product.AffiliateLink.length > 30 ? product.AffiliateLink.substring(0, 30) + '...' : product.AffiliateLink}
                                         </a>
-                                        <button onclick="copyToClipboard('${product.affiliateLink}')" class="ml-2 text-gray-400 hover:text-gray-600" title="Copy link">
+                                        <button onclick="copyToClipboard('${product.AffiliateLink}')" class="ml-2 text-gray-400 hover:text-gray-600" title="Copy link">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </div>` : 
@@ -330,8 +330,8 @@
                         </div>
                         
                         <div class="form-group md:col-span-2">
-                            <label for="affiliateLink" class="block text-sm font-medium text-gray-700 mb-1">Affiliate Link</label>
-                            <input type="url" id="affiliateLink" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="https://example.com/affiliate-link">
+                            <label for="AffiliateLink" class="block text-sm font-medium text-gray-700 mb-1">Affiliate Link</label>
+                            <input type="url" id="AffiliateLink" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="https://example.com/affiliate-link">
                         </div>
                         
                         <div class="form-group md:col-span-2">
@@ -364,7 +364,7 @@
             const imagesInput = document.getElementById("images").value;
             const category = document.getElementById("category").value;
             const stock = document.getElementById("stock").value;
-            const affiliateLink = document.getElementById("affiliateLink").value;
+            const AffiliateLink = document.getElementById("AffiliateLink").value;
             
             const images = imagesInput.split('\n')
                 .map(url => url.trim())
@@ -377,7 +377,7 @@
                 images,
                 category,
                 stock: parseInt(stock),
-                affiliateLink: affiliateLink || null
+                AffiliateLink: AffiliateLink || null
             };
 
             try {
