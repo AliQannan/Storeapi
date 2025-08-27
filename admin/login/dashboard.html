@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-
+  <title>Admin Dashboard</title>
+</head>
 <body>
-<div>
+  <div>
     Hello
-</div>
+  </div>
 
+  <script>
+    const backendUrl = "https://storeapi-mu.vercel.app"; // define your backend URL
 
-<script>
-   window.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       const token = localStorage.getItem('atoken');
       if (token) {
         try {
@@ -25,16 +26,12 @@
           } else {
             localStorage.removeItem('atoken');
           }
-        } catch {
+        } catch (error) {
+          console.error("Verification failed:", error);
           localStorage.removeItem('atoken');
         }
       }
     });
-</script>
-
+  </script>
 </body>
-
-  
 </html>
-
-
