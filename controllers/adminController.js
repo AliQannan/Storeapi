@@ -2,31 +2,27 @@
 import prisma from "../models/prismaClient.js";
 
 // ✅ Admin Login
-export const loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password required" });
-  }
-
+const loginAdmin = async (req, res) => {
   try {
-    const admin = await prisma.adminUser.findUnique({ where: { email } });
+    const { email, password } = req.body;
+   
+    const admin = await adminModel.findOne({ email });
+    
 
-    if (!admin || admin.password !== password) {
-      return res.status(403).json({ error: "Invalid credentials" });
+    if (!admin) {
+      return res.json({ success: false, message: "admin does not exist" });
     }
-
-    // You can later add JWT here for secure sessions
-    res.status(200).json({
-      message: "Login successful",
-      admin: { id: admin.id, email: admin.email },
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (isMatch) {
+      const token = jwt.sign({ id: admin._id },"aliqannan");
+      res.json({ message : "Login successfuly" , success: true, token });
+    } else {
+      res.json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (err) {
+    res.json({ success: false, message: err.message });
   }
 };
-
 // ✅ Get all admins
 export const getAdmins = async (req, res) => {
   try {
@@ -41,4 +37,7 @@ export const getAdmins = async (req, res) => {
 };
 
 // ✅ Create new admin
+
+
+export {loginAdmin} ;
 
