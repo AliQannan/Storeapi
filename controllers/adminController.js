@@ -2,7 +2,7 @@
 import prisma from "../models/prismaClient.js";
 
 // ✅ Admin Login
-const loginAdmin = async (req, res) => {
+export  const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     
@@ -84,7 +84,3 @@ export const getAdmins = async (req, res) => {
 };
 
 // ✅ Create new admin
-
-
-export {loginAdmin ,getAdmins} ;
-
