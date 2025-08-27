@@ -21,12 +21,14 @@
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
-            window.location.href = "/admin/dashboard";
+            console.log("login successfuly")
           } else {
             localStorage.removeItem('atoken');
+            window.location.href = "/";
           }
         } catch {
           localStorage.removeItem('atoken');
+          window.location.href = "/";
         }
       }
     });
