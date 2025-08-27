@@ -51,8 +51,7 @@ export  const loginAdmin = async (req, res) => {
       token,
       admin: {
         id: admin.id,
-        email: admin.email,
-        createdAt: admin.createdAt
+        email: admin.email
       }
     });
 
