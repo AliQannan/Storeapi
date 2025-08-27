@@ -5,22 +5,70 @@ import prisma from "../models/prismaClient.js";
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-   
-    const admin = await adminModel.findOne({ email });
     
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email and password are required" 
+      });
+    }
 
-    if (!admin) {
-      return res.json({ success: false, message: "admin does not exist" });
+    const admin = await prisma.adminUser.findUnique({
+      where: { email: email.toLowerCase().trim() }
+    });
+
+    if (!) {
+      // Use consistent error messages to avoid revealing if email exists
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid credentials" 
+      });
     }
+
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (isMatch) {
-      const token = jwt.sign({ id: admin._id },"aliqannan");
-      res.json({ message : "Login successfuly" , success: true, token });
-    } else {
-      res.json({ success: false, message: "Invalid credentials" });
+    
+    if (!isMatch) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid credentials" 
+      });
     }
+
+    const token = jwt.sign(
+      { 
+        id: admin.id,
+        email: admin.email 
+      }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        createdAt: admin.createdAt
+      }
+    });
+
   } catch (err) {
-    res.json({ success: false, message: err.message });
+    console.error('Login error:', err);
+    
+    // Handle specific Prisma errors
+    if (err.code === 'P1013' || err.code === 'P1001') {
+      return res.status(500).json({
+        success: false,
+        message: "Database connection error"
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
   }
 };
 // ✅ Get all admins
@@ -39,5 +87,5 @@ export const getAdmins = async (req, res) => {
 // ✅ Create new admin
 
 
-export {loginAdmin} ;
+export {loginAdmin ,getAdmins} ;
 
