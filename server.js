@@ -39,6 +39,9 @@ app.get("/", (req, res) => {
 app.get("/admin/signup.html", (req, res) => {
   res.sendFile(path.join(__dirname, "admin", "login", "signup.html"));
 });
+app.get("/admin/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin", "login", "dashboard.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
