@@ -140,6 +140,8 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
 
 export const signupAdmin = async (req, res) => {
   try {
+    console.log('Signup request body:', req.body); // Debug log
+    
     const { email, password, role } = req.body;
 
     // Validate input presence
@@ -178,6 +180,8 @@ export const signupAdmin = async (req, res) => {
     // Normalize email
     const normalizedEmail = email.toLowerCase().trim();
 
+    console.log('Checking for existing admin with email:', normalizedEmail); // Debug log
+
     // Check if email already exists
     const existingAdmin = await prisma.adminUser.findUnique({
       where: { email: normalizedEmail }
@@ -190,9 +194,13 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
+    console.log('Hashing password...'); // Debug log
+
     // Hash password with higher salt rounds for admin accounts
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    console.log('Creating new admin...'); // Debug log
 
     // Create new admin
     const newAdmin = await prisma.adminUser.create({
@@ -202,6 +210,8 @@ export const signupAdmin = async (req, res) => {
         role: role
       }
     });
+
+    console.log('Admin created successfully:', newAdmin.id); // Debug log
 
     // Ensure JWT_SECRET exists
     if (!process.env.JWT_SECRET) {
@@ -217,18 +227,16 @@ export const signupAdmin = async (req, res) => {
       {
         id: newAdmin.id,
         email: newAdmin.email,
-        role: 'admin' // Add role for better token validation
+        role: newAdmin.role
       },
       process.env.JWT_SECRET,
       { 
-        expiresIn: "24h",
-        issuer: "your-app-name", // Add issuer for better security
-        audience: "admin-panel" // Add audience for token scope
+        expiresIn: "24h"
       }
     );
 
     // Log successful admin creation (without sensitive data)
-    console.log(`New admin created: ${newAdmin.email} at ${new Date().toISOString()}`);
+    console.log(`New admin created: ${newAdmin.email} with role: ${newAdmin.role} at ${new Date().toISOString()}`);
 
     res.status(201).json({
       success: true,
@@ -238,11 +246,16 @@ export const signupAdmin = async (req, res) => {
         id: newAdmin.id,
         email: newAdmin.email,
         role: newAdmin.role,
+        createdAt: newAdmin.createdAt
       }
     });
 
   } catch (err) {
-    console.error("Admin signup error:", err);
+    console.error("Admin signup error details:", {
+      message: err.message,
+      code: err.code,
+      stack: err.stack
+    });
     
     // Handle specific Prisma errors
     if (err.code === 'P2002') {
@@ -252,9 +265,26 @@ export const signupAdmin = async (req, res) => {
       });
     }
 
+    // Handle Prisma connection errors
+    if (err.code === 'P1001') {
+      return res.status(500).json({
+        success: false,
+        message: "Database connection failed"
+      });
+    }
+
+    // Handle validation errors
+    if (err.code === 'P2000') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data provided"
+      });
+    }
+
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 };
