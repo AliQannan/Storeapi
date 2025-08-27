@@ -34,7 +34,7 @@ app.use('/api/admin' , adminRoutes)
 app.use("/api/products", productRoutes);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "admin", "login", "dashboard.html"));
+  res.sendFile(path.join(__dirname, "admin", "login", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
